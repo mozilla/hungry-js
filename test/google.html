@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Test live data fetching via Google JSAPI</title>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>    
+    <script type="text/javascript">
+      window.google.load('feeds', '1');
+    </script>
+  </head>
+  <body>
+    <!-- Using require.js, a module system for javascript, include the
+         js files. This loads "live.js", which in turn can load other
+         files, all handled by require.js:
+         http://requirejs.org/docs/api.html#jsfiles -->
+    <script type="text/javascript"
+            data-main="google.js"
+            src="lib/require.js"></script>
+  </body>
+</html>
