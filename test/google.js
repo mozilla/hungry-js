@@ -16,14 +16,14 @@ define(function(require) {
     delete localStorage.rssfeeds;
 
     // ------------ One feed
-    var rss = require('app/rssfeeds');
+    var rss = require('app/rssfeeds_google');
     rss.initGoogle();
 
     // start with one feed
     // add to listFeeds
     var data = {
       link: fixtures.feeds[0].link,
-      title: fixtures.feeds[0].tite
+      title: fixtures.feeds[0].title
     };
     var feed = rss.feeds.addUnique(data);
 

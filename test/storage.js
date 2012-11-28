@@ -18,6 +18,7 @@ define(function(require) {
 
     // ------------ One feed
     var rss = require('app/rssfeeds');
+    rss.init();
 
     // start with one feed
     // add to listFeeds

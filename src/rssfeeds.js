@@ -1,6 +1,4 @@
-//  Google Feeds API wrapper
-//
-//  license or something
+//  Storing feeds represented by Backbone models in localStorage 
 //
 
 define(function(require) {
@@ -63,6 +61,7 @@ define(function(require) {
     },
 
     addUnique: function(data, options) {
+      // TODO validate data
       if (this.where({link: data.link}).length == 0) {
         var article = new Article(data);
         this.add(article, options);
@@ -96,7 +95,7 @@ define(function(require) {
 
   });
 
-  var FeedBase = Backbone.Model.extend({
+  var Feed = Backbone.Model.extend({
     defaults: {
       // title: "Not specified",
       // link: "Not specified"
@@ -121,6 +120,7 @@ define(function(require) {
      * loading new articles
      */
     update: function(data) {
+      throw 'Update Feed not implemented';
     },
 
     toJSON : function() {
@@ -133,41 +133,9 @@ define(function(require) {
 
   });
 
-  var GoogleFeed = FeedBase.extend({
-    /**
-     * loading new articles
-     */
-    update: function(callback) {
-      var that = this;
-      var gFeed = new google.feeds.Feed(this.get('link'));
-      gFeed.load(function(result) {
-        var articles = [];
-        result.feed.entries.forEach(function(entry) {
-          // add only if article is new to the system
-          if (that.articles.where({link: entry.link}).length === 0) {
-            var data = {
-              title: entry.title,
-              link: entry.link,
-              date: entry.publishedDate,
-              author: entry.author,
-              content: entry.content
-            };
-            articles.push(new Article(data))
-          }
-        });
-        // that.storeArticles();
-        that.articles.add(articles);
-        if (callback !== undefined) {
-          callback(articles);
-        }
-      });
-    }
-  });
-
-  var Feed = GoogleFeed;
-
   var Feeds = Backbone.Collection.extend({
     models: Feed,
+    Feed: Feed,
 
     initialize: function() {
       this.on('remove', this.store);
@@ -178,6 +146,7 @@ define(function(require) {
      * overrides the default Backbone fetch method (for a reason)
      */
     fetch: function() {
+      var that = this;
       // reset the list
       this.reset();
       // load feed list from storage
@@ -194,7 +163,7 @@ define(function(require) {
         storageFeeds.forEach(function(feed) {
           // all feeds in storage are unique by link attribute
           // do not fire the 'add' event
-          that.add(new Feed(feed), {silent: true});
+          that.add(new that.Feed(feed), {silent: true});
         });
       }
     },
@@ -204,7 +173,7 @@ define(function(require) {
      */
     addUnique: function(data, options) {
       if (this.where({link: data.link}).length == 0) {
-        var feed = new Feed(data);
+        var feed = new this.Feed(data);
         this.add(feed, options);
       }
       return feed;
@@ -263,24 +232,17 @@ define(function(require) {
   // * deleteArticle - remove article from the list
   // * readArticle - read article from the stored data
 
-  var google = false;
-
-  var connectGoogleAPI = function() {
-    return window.google;
-  };
-
-  var feeds = new Feeds();
+  var feeds = null;
 
   return {
-    initGoogle: function() {
-      google = connectGoogleAPI();
-      this.init();
-    },
     init: function() {
       // initialize feeds from storage
-      feeds.fetch();
+      this.feeds = new Feeds();
+      this.feeds.fetch();
     },
     feeds: feeds,
-    Feed: Feed
+    Article: Article,
+    Feed: Feed,
+    Feeds: Feeds
   };
 });
